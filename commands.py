@@ -35,20 +35,46 @@ def login():
     policies_input.click()
 
 
+
 def exit():
     exit = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH,
                                                                            '/html/body/ndm-layout/div/div[2]/div[1]/ndm-menu/div/div[2]/div[1]/div[1]/div/div[7]/div/span[1]/span')))
     exit.click()
 
+def find(device):
+    devices = driver.find_elements(By.CSS_SELECTOR, "div.policy-consumers-list__consumer-label.ng-binding.ng-scope")
 
-def move_to_vpn(device):
+    for element in devices:
+        if element.text == device:
+            return True
+        else:
+            continue
+
+
+
+def toggle(device):
     login()
-
     politics = driver.find_elements(By.CSS_SELECTOR, "div span.ng-scope")
     for element in politics:
-        if element.text == "Политика по умолчанию": # определяем политику без впн
+        if element.text == "Политика по умолчанию":
             element.click()
+            print("политика по умолчанию")
             break
+    if find(device):
+         return move_to_vpn(device)
+    else:
+        politics = driver.find_elements(By.CSS_SELECTOR, "div span.ng-scope")
+        for element in politics:
+            if element.text == "VPN":
+                element.click()
+                break
+        if find(device):
+            return move_back(device)
+        else:
+         return "Устройство не найдено"
+
+
+def move_to_vpn(device):
 
     devices = driver.find_elements(By.CSS_SELECTOR, "div.policy-consumers-list__consumer-label.ng-binding.ng-scope")
     for element in devices:
@@ -61,7 +87,7 @@ def move_to_vpn(device):
 
     policies = driver.find_elements(By.CSS_SELECTOR, 'a')
     for element in policies:
-        if element.text == 'VPN': # определяем политику с впн
+        if element.text == 'VPN':
             element.click()
             break
 
@@ -71,18 +97,12 @@ def move_to_vpn(device):
     sleep(1)
 
     exit()
+
+    return "На устройстве включен ВПН"
 
 
 def move_back(device):
-    login()
 
-    politics = driver.find_elements(By.CSS_SELECTOR, "div span.ng-scope")
-    for element in politics:
-        if element.text == "VPN": # определяем политику с впн
-            element.click()
-            break
-
-    print('button found')
     devices = driver.find_elements(By.CSS_SELECTOR, "div.policy-consumers-list__consumer-label.ng-binding.ng-scope")
     for element in devices:
         if element.text == device:
@@ -94,7 +114,7 @@ def move_back(device):
 
     policies = driver.find_elements(By.CSS_SELECTOR, 'a')
     for element in policies:
-        if element.text == 'Политика по умолчанию': # определяем политику без впн
+        if element.text == 'Политика по умолчанию':
             element.click()
             break
 
@@ -104,3 +124,6 @@ def move_back(device):
     sleep(1)
 
     exit()
+
+    return "На устройстве выключен ВПН"
+
