@@ -18,7 +18,6 @@ py telegrambot.py
 После можно создать батник:
 
 ```
-cd .\*** (путь до папки)
-.\venv\Scripts\Activate.bat
-py telegrambot.py
+cd ...\keenetic_vpn_bot\
+...\keenetic_vpn_bot\venv\Scripts\python.exe telegrambot.py
 ```
