@@ -10,7 +10,7 @@ host = '192.168.1.1'
 password = 'admin'
 maclist = {'LGwebOSTV': '11:11:11:11:11:11', 'Mobile': '11:11:11:11:11:11', 'PS5':'11:11:11:11:11:11'}
 wollist = ['11:11:11:11:11:11', '11:11:11:11:11:11']
-
+whitelist = [123,]
 
 markup = InlineKeyboardMarkup()
 for button_id, button_text in maclist.items():
@@ -19,11 +19,14 @@ for button_id, button_text in maclist.items():
 
 @bot.message_handler(commands=['start'])
 def salam(message) -> None:
-    bot.send_message(message.chat.id, f'Salam!')
-    bot.send_message(message.chat.id, "Select option:", reply_markup=markup)
+    if message.chat.id in whitelist:
+        bot.send_message(message.chat.id, f'Salam!')
+        bot.send_message(message.chat.id, "Select option:", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, f'Ты ошибся дверью, браток')
 
 
-@bot.callback_query_handler(func=lambda call: True)
+
 def callback_query(call):
     if call.data in maclist.values():
         new_markup = InlineKeyboardMarkup()
@@ -48,5 +51,14 @@ def callback_query(call):
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, "Сделано! Что дальше?", reply_markup=markup)
 
+@bot.callback_query_handler(func=lambda call: True)
+def success(call) -> None:
+    if call.chat.id in whitelist:
+        callback_query(call)
+
+@bot.message_handler(commands=['auth'])
+def auth(message) -> None:
+    bot.send_message(message.chat.id, message.chat.id)
 
 bot.infinity_polling(timeout=10, long_polling_timeout = 5)
+
