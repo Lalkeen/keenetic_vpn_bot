@@ -1,5 +1,7 @@
 import commands
 import telebot
+from telebt import types
+from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 
 bot = telebot.TeleBot('BOT-TOKEN')
