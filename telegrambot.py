@@ -8,14 +8,13 @@ bot = telebot.TeleBot('BOT-TOKEN')
 
 host = '192.168.1.1'
 password = 'admin'
-maclist = {'LGwebOSTV': '11:11:11:11:11:11', 'Mobile': '11:11:11:11:11:11', 'PS5':'11:11:11:11:11:11'}
-wollist = ['11:11:11:11:11:11', '11:11:11:11:11:11']
-whitelist = [123,]
+maclist = {'LGwebOSTV': '11:11:11:11:11:11', 'Mobile': '11:11:11:11:11:11', 'PS5':'11:11:11:11:11:11'} # список устройств
+wollist = ['11:11:11:11:11:11', '11:11:11:11:11:11'] # wake on lan list - возможность будить устройство 
+whitelist = [123,] # вайтлист пользователей. получить айди командой /auth
 
 markup = InlineKeyboardMarkup()
 for button_id, button_text in maclist.items():
     markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=button_text))
-
 
 @bot.message_handler(commands=['start'])
 def salam(message) -> None:
@@ -25,8 +24,7 @@ def salam(message) -> None:
     else:
         bot.send_message(message.chat.id, f'Ты ошибся дверью, браток')
 
-
-
+@bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if call.data in maclist.values():
         new_markup = InlineKeyboardMarkup()
@@ -50,11 +48,6 @@ def callback_query(call):
         commands.wake(mac, host, password)
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, "Сделано! Что дальше?", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: True)
-def success(call) -> None:
-    if call.chat.id in whitelist:
-        callback_query(call)
 
 @bot.message_handler(commands=['auth'])
 def auth(message) -> None:
