@@ -9,6 +9,7 @@ bot = telebot.TeleBot('BOT-TOKEN')
 host = '192.168.1.1'
 password = 'admin'
 maclist = {'LGwebOSTV': '11:11:11:11:11:11', 'Mobile': '11:11:11:11:11:11', 'PS5':'11:11:11:11:11:11'}
+wollist = ['11:11:11:11:11:11', '11:11:11:11:11:11']
 
 
 markup = InlineKeyboardMarkup()
@@ -28,6 +29,8 @@ def callback_query(call):
         new_markup = InlineKeyboardMarkup()
         new_markup.add(types.InlineKeyboardButton(text='On', callback_data=f'on_{call.data}'))
         new_markup.add(types.InlineKeyboardButton(text='Off', callback_data=f'off_{call.data}'))
+        if call.data in wollist:
+            new_markup.add(types.InlineKeyboardButton(text='wake', callback_data=f'wake_{call.data}'))
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=new_markup)
     elif call.data.startswith('on_'):
         mac = call.data.split('_')[1]
@@ -37,6 +40,11 @@ def callback_query(call):
     elif call.data.startswith('off_'):
         mac = call.data.split('_')[1]
         commands.api_off(mac, host, password)
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, "Сделано! Что дальше?", reply_markup=markup)
+    elif call.data.startswith('wake_'):
+        mac = call.data.split('_')[1]
+        commands.wake(mac, host, password)
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, "Сделано! Что дальше?", reply_markup=markup)
 
