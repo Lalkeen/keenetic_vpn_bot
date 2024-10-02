@@ -2,15 +2,19 @@ import commands
 import telebot
 from telebt import types
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
-
+import json
 
 bot = telebot.TeleBot('BOT-TOKEN')
 
 host = '192.168.1.1'
 password = 'admin'
-maclist = {'LGwebOSTV': '11:11:11:11:11:11', 'Mobile': '11:11:11:11:11:11', 'PS5':'11:11:11:11:11:11'} # список устройств
-wollist = ['11:11:11:11:11:11', '11:11:11:11:11:11'] # wake on lan list - возможность будить устройство 
-whitelist = [123,] # вайтлист пользователей. получить айди командой /auth
+
+with open('alllists.json', 'r') as f:
+    alllists = json.load(f)
+    
+maclist = alllists['maclist'] # список устройств
+wollist = alllists['wollist'] # wake on lan list - возможность будить устройство 
+whitelist = alllists['whitelist'] # вайтлист пользователей. получить айди командой /auth
 
 markup = InlineKeyboardMarkup()
 for button_id, button_text in maclist.items():
