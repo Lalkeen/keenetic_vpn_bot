@@ -19,10 +19,10 @@ whitelist = alllists['whitelist']
 @bot.message_handler(commands=['start'])
 def salam(message) -> None:
     if message.chat.id in whitelist:
-        markup = InlineKeyboardMarkup()
+        salam_markup = InlineKeyboardMarkup()
         for button_id, button_text in maclist.items():
-            markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
-        bot.send_message(message.chat.id, "Выбери устройство, затем действие:", reply_markup=markup)
+            salam_markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=button_text))
+        bot.send_message(message.chat.id, "Выбери устройство, затем действие:", reply_markup=salam_markup)
     else:
         bot.send_message(message.chat.id, f'Ты ошибся дверью, браток')
 
@@ -31,7 +31,7 @@ def salam(message) -> None:
 def callback_query(call):
     markup = InlineKeyboardMarkup()
     for button_id, button_text in maclist.items():
-        markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
+        markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=button_text))
     if call.data in maclist.values():
         new_markup = InlineKeyboardMarkup()
         new_markup.add(types.InlineKeyboardButton(text='On', callback_data=f'on_{call.data}'))
@@ -88,11 +88,11 @@ def reg(message) -> None:
 
 @bot.message_handler(commands=['del'])
 def delet(message) -> None:
-    markup = InlineKeyboardMarkup()
+    del_markup = InlineKeyboardMarkup()
     for button_id, button_text in maclist.items():
-        markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
+        del_markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
     if message.chat.id in whitelist:
-        bot.send_message(message.chat.id, "Что будем удалять?", reply_markup=markup)
+        bot.send_message(message.chat.id, "Что будем удалять?", reply_markup=del_markup)
 
 
 def add_device(message) -> None:
