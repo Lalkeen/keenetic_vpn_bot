@@ -16,14 +16,12 @@ maclist = alllists['maclist']
 wollist = alllists['wollist']
 whitelist = alllists['whitelist']
 
-markup = InlineKeyboardMarkup()
-for button_id, button_text in maclist.items():
-    markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=button_text))
-
-
 @bot.message_handler(commands=['start'])
 def salam(message) -> None:
     if message.chat.id in whitelist:
+        markup = InlineKeyboardMarkup()
+        for button_id, button_text in maclist.items():
+            markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
         bot.send_message(message.chat.id, "Выбери устройство, затем действие:", reply_markup=markup)
     else:
         bot.send_message(message.chat.id, f'Ты ошибся дверью, браток')
@@ -31,6 +29,9 @@ def salam(message) -> None:
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
+    markup = InlineKeyboardMarkup()
+    for button_id, button_text in maclist.items():
+        markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
     if call.data in maclist.values():
         new_markup = InlineKeyboardMarkup()
         new_markup.add(types.InlineKeyboardButton(text='On', callback_data=f'on_{call.data}'))
@@ -66,13 +67,32 @@ def callback_query(call):
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, 'Устройство не будет добавлено в список')
         salam(call.message)
+    elif call.data.startswith('del_'):
+        device_name = call.data.split('_')[1]
+        if device_name in maclist:
+            del maclist[device_name]
+            alllists["maclist"] = dict(maclist)
+            with open('alllists.json', 'w') as file:
+                json.dump(alllists, file)
+            bot.send_message(call.message.chat.id, f'Устройство {device_name} удалено из списка')
+            salam(call.message)
 
 
 @bot.message_handler(commands=['reg'])
 def reg(message) -> None:
     if message.chat.id in whitelist:
-        bot.send_message(message.chat.id, f'Для добавления устройства в список отправь сообщение типа "Имя_устройства МАК_адрес", например: TV 11:11:11:11:11:11')
+        bot.send_message(message.chat.id,
+                         f'Для добавления устройства в список отправь сообщение типа "Имя_устройства МАК_адрес", например: TV 11:11:11:11:11:11')
         bot.register_next_step_handler(message, add_device)
+
+
+@bot.message_handler(commands=['del'])
+def delet(message) -> None:
+    markup = InlineKeyboardMarkup()
+    for button_id, button_text in maclist.items():
+        markup.add(telebot.types.InlineKeyboardButton(text=button_id, callback_data=f'del_{button_id}'))
+    if message.chat.id in whitelist:
+        bot.send_message(message.chat.id, "Что будем удалять?", reply_markup=markup)
 
 
 def add_device(message) -> None:
@@ -92,8 +112,10 @@ def add_device(message) -> None:
         bot.send_message(message.chat.id,
                          'Неверный формат сообщения. Пожалуйста, отправьте сообщение типа "Имя_устройства МАК_адрес".')
 
+
 @bot.message_handler(commands=['auth'])
 def auth(message) -> None:
     bot.send_message(message.chat.id, message.chat.id)
 
-bot.infinity_polling(timeout=10, long_polling_timeout = 5)
+
+bot.infinity_polling(timeout=10, long_polling_timeout=5)
