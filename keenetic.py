@@ -1,7 +1,10 @@
 from hashlib import md5, sha256
 from json import loads
 
+import urllib3
 from requests import Session
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class ConnectedDevice:
@@ -20,9 +23,9 @@ class ConnectedDevice:
 
 
 class Router:
-    def __init__(self, username="admin", password="admin", host="192.168.1.1", port=80):
+    def __init__(self, username="admin", password="", host="192.168.1.1", port=443):
         self.__session = Session()
-        self.__endpoint = f"http://{host}:{port}"
+        self.__endpoint = f"https://{host}:{port}"
         self.__username = username
         self.__password = password
         self.__auth()
@@ -43,10 +46,10 @@ class Router:
 
 
     def get(self, address, params={}):
-        return self.__session.get(self.__endpoint + address, params=params)
+        return self.__session.get(self.__endpoint + address, params=params, verify=False)
 
     def post(self, address, data):
-        return self.__session.post(self.__endpoint + address, json=data)
+        return self.__session.post(self.__endpoint + address, json=data, verify=False)
 
     @property
     def connected_devices(self):
@@ -55,7 +58,6 @@ class Router:
             devices = loads(response.text)["host"]
             map(ConnectedDevice, devices)
             return devices
-
             # return list(
             #     filter(lambda device: device.active, map(ConnectedDevice, devices))
             # )
